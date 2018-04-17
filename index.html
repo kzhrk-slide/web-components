@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Web Components</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Droid Serif', 'YuGothic', 'Arial', serif;
+      }
+      h1, h2, h3, h4 {
+        font-weight: normal;
+        color: #c18100;
+        line-height: 1.2;
+      }
+      a,
+      a:link,
+      a:visited {
+        color: #825700;
+      }
+      li {
+        margin-top: 5px;
+      }
+      li:first-child {
+        margin-top: 0;
+      }
+      ul ul {
+        margin-top: 5px;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .big {
+        font-size: 150px;
+      }
+      .fz60 {
+        font-size: 60px;
+      }
+      code.text {
+        white-space: normal;
+      }
+      pre {
+        padding: 1em;
+        background-color: #eee;
+      }
+      table {
+        width: 100%;
+      }
+      th {
+        padding: 0.5em;
+        background-color: #ffdbb6;
+      }
+      td {
+        padding: 0.5em;
+        background-color: #fff7e7;
+      }
+      tr {
+        background-color: #eee;
+      }
+      blockquote {
+        display: inline-block;
+        padding: 0 1em;
+        margin-left: 0;
+        background: #eee;
+        border-left: 5px solid #4c3300;
+      }
+      code {
+        background-color: #fff7e7;
+      }
+      .w100 img {
+        width: 100%;
+      }
+      .del {
+        text-decoration: line-through;
+      }
+      .remark-slide-scaler {
+        overflow: scroll;
+      }
+      .remark-slide-number {
+
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+
+      class: center, middle
+
+      # Web Components
+
+      2018/04/xx
+
+      Kobayashi Kazuhiro (kzhrk)
+
+      ---
+
+      ## Web Componentsとは
+
+      --
+
+      > Web Components は、オープンなウェブテクノロジーを使用して作成された再利用可能なユーザーインターフェイスウィジェット
+      > https://developer.mozilla.org/ja/docs/Web/Web_Components
+
+      --
+
+      HTML/CSS/JavaScriptとブラウザに実装されたAPIを利用したコンポーネント
+
+      https://github.com/w3c/webcomponents/
+
+      ---
+
+      ## Web Componentsで使われる技術
+
+      --
+
+      - Shadow DOM
+      - Custom Elements
+      - HTML Templates
+      - CSS Scoping, CSS Shadow Parts
+      - .del[HTML Imports]
+
+      ---
+
+      ## Shadow DOM
+
+      --
+
+      ルートのDOMの外からアクセスできないスコープ付サブツリー。
+
+      通常のDOMツリーはページの他の部分からアクセス可能。
+
+      [W3C: Shadow DOM](https://www.w3.org/TR/shadow-dom/)
+
+      ---
+
+      ## Shadow DOM v0 and v1
+
+      --
+
+      ### v0
+
+      ```:js
+      const el = document.createElement('div');
+      const shadowRoot = el.createShadowRoot();
+      ```
+
+      ### v1
+
+      ```:js
+      const el = document.createElement('div');
+      const shadowRoot = el.attachShadow({ mode: 'closed' });
+      ```
+
+      ---
+
+      ## mode: closed
+
+      --
+
+      Shadow DOM v0では常に外部からアクセス可能。
+
+      Shadow DOM v1では外部からアクセスできないclosed modeが追加。
+
+      ```:js
+      var el = document.createElement('div');
+      var shadowRoot = el.attachShadow({ mode: 'open' });
+      console.log(el.shadowRoot === shadowRoot); //true
+      console.log(el.shadowRoot); //Shadow Root
+      ```
+
+      ```:js
+      var el = document.createElement('div');
+      var shadowRoot = el.attachShadow({ mode: 'closed' });
+      console.log(el.shadowRoot === shadowRoot); //false
+      console.log(el.shadowRoot); //null
+      ```
+
+      ---
+
+      ## Custom Elements
+
+      --
+
+      [W3C: Cutom Elements](https://www.w3.org/TR/custom-elements/)
+
+      独自のHTML要素を定義する機能。
+
+      YouTubeはCutomElementで構築されている。
+
+      ---
+
+      ## Custom Elements v0 and v1
+
+      --
+
+      ### v0
+
+      ```:js
+      document.registerElement('my-header', {
+        extends: 'header'
+      });
+      ```
+
+      ### v1
+
+      ```:js
+      customElements.define('my-header', MyHeader);
+      ```
+
+      ---
+
+      ## HTML Templates
+
+      --
+
+      ```:html
+      <template>
+        <button>My Button</button>
+      </template>
+      ```
+
+      [W3C: HTML5.2 template](https://www.w3.org/TR/html5/scripting-1.html#the-template-element)
+
+      [can i do](https://caniuse.com/#feat=template)
+
+      ---
+
+      ## CSS Scoping, CSS Shadow Parts
+
+      --
+
+      ```:css
+      /* css scoping */
+      :host {}
+      :host-context() {}
+      ::slotted() {}
+
+      /* css shadow parts */
+      ::part() {}
+      ::theme() {}
+      ```
+
+      ---
+
+      ## CSS Scoping
+
+      --
+
+      [W3C:CSS Scoping](https://drafts.csswg.org/css-scoping/)
+
+      | selector | element |
+      |:---------|:--------|
+      | :host | my-list |
+      | :host(.hoge) | my-list.hoge |
+      | :host-context(header) | header my-list |
+
+      (Shadow Root: my-list)
+
+      ---
+
+      ## CSS Scoping
+
+      --
+
+      ```:html
+      <!-- Shadow DOM : <my-head> -->
+      <header>
+        <slot name="list"></slot>
+      </header>
+      ```
+
+      ```:html
+      <!-- Custom Element -->
+      <my-head>
+        <my-socials slot="list"></my-socials>
+      </my-head>
+      ```
+
+      ```:css
+      /* ShadowDOM Style */
+      ::slotted(my-socials) {
+        font-size: 14px;
+      }
+      ```
+
+      ---
+
+      ## CSS Shadow Parts
+
+      --
+
+      [W3C:CSS Shadow Parts](https://drafts.csswg.org/css-shadow-parts/)
+
+      ```:css
+      my-button::part(label) {}
+
+      :root::theme(label) {}
+      ```
+
+      ```:html
+      <label>
+        <my-button></my-button>
+      </label>
+
+      <my-form>
+        <ul>
+          <li part="label"></li>
+          <li part="label"></li>
+          <li part="label"></li>
+        </ul>
+      </my-form>
+      ```
+
+      ---
+
+      ## CSS Shadow Parts
+
+      | browser | status |
+      |:--------|:-------|
+      | Chrome | in development |
+      | Firefox | No public signals |
+      | IE | No public signals |
+      | Safari | No public signals |
+
+      [Chrome Platform Status](https://www.chromestatus.com/features/5763933658939392)
+
+      ---
+
+      ## HTML Imports
+
+      --
+
+      ```:html
+      <link rel="import" href="/imports/parts.html">
+      ```
+
+      [W3C](https://w3c.github.io/webcomponents/spec/imports/)
+
+      [can i use](https://caniuse.com/#feat=imports)
+
+      [Chrome Platform Status](https://www.chromestatus.com/features/5144752345317376)
+
+      ---
+
+      ## ES Module
+
+      --
+
+      ```:html
+      <script type="module" src="./components/header.js"></script>
+      [...]
+      <my-header></my-header>
+      ```
+
+      [can i use](https://caniuse.com/#feat=es6-module)
+
+      ---
+
+      ## Web Componentsの実装
+
+      --
+
+      - HTMLElementのextend
+      - Shadow DOMの生成
+      - DOMとcssをShadow DOMに登録
+      - life cycleの登録
+      - customElementsの登録
+      - HTMLに記述
+
+      ---
+
+      ## Polyfill
+
+      --
+
+      - [Polymer](https://www.polymer-project.org/)
+      - .del[[X-Tag](http://x-tag.github.io/)]
+
+      ---
+
+      ## babel + webpack
+
+      --
+
+      ### Plugins
+      - [babel-plugin-transform-custom-element-classes](https://www.npmjs.com/package/babel-plugin-transform-custom-element-classes)
+
+      ### Loader
+      - babel-loader
+      - pug-loader
+      - postcss-loader
+      - css-loader
+
+      ---
+
+      ## HTMLElementのextend
+
+      --
+
+      ```:js
+      export default class MyHeader extends HTMLElement {
+        constructor() {
+          super();
+        }
+      };
+      ```
+
+      ---
+
+      ## Shadow DOMの生成
+
+      --
+
+      ```:js
+      export default class MyHeader extends HTMLElement {
+        constructor() {
+          super();
+
+          const shadow = this.attachShadow({ mode: 'open' });
+        }
+      };
+
+      ```
+
+      ---
+
+      ## DOMとcssをShadow DOMに登録
+
+      --
+
+      ```:js
+      import style from './style.css';
+      import template from './template.pug';
+
+      class MyHeader extends HTMLElement {
+        constructor() {
+          super();
+
+          const shadow = this.attachShadow({ mode: 'open' });
+
+          const styleNode = document.createElememt('style');
+          styleNode.innerText = style.toString();
+
+          const tmpDiv = document.createElememt('div');
+          tmpDiv.innerHTML = template({style: style.locals});
+
+          shadow.appendChild(styleNode);
+          shadow.appendChild(tmpDiv.firstChild);
+        }
+      };
+      ```
+
+      ---
+
+      ## life cycleの登録
+
+      --
+
+      カスタム要素応答
+
+      https://developers.google.com/web/fundamentals/web-components/customelements?hl=ja#reactions
+
+      | name | called when |
+      |:-----|:----------|
+      | constructor | インスタンス生成時。 |
+      | connectedCallback | DOM追加時。追加のたびに呼ばれる。 |
+      | disconnectedCallback | DOM削除時。 |
+      | attributeChangedCallback | プロパティ更新時。observedAttributesプロパティに登録されたプロパティのみ有効。 |
+      | adoptedCallback | 新しいdocumentに移動された時。 |
+
+      ---
+
+      ## life cycleの登録
+
+      ```:js
+      class MyHeader extends HTMLElement {
+        constructor() {
+          super();
+          [...]
+        }
+
+        connectedCallback() {
+          console.log('element added to page.');
+        }
+
+        disconnectedCallback() {
+          console.log('element removed to page.');
+        }
+
+        static get observedAttributes() { return ['status']; }
+
+        attributeChangedCallback(attr, oldValue, newValue) {
+          console.log('updated status');
+        }
+      }
+      ```
+
+      ---
+
+      ## customElementsの登録
+
+      --
+
+      ```:js
+      import Header from './components/Header';
+      import Socials from './components/Socials';
+      import Modal from './components/Modal';
+
+      customElements.define('my-header', Header);
+      customElements.define('my-socials', Socials);
+      customElements.define('my-modal', Modal);
+      ```
+
+      > valid custom element names:<br>
+      > They contain a hyphen, used for namespacing and to ensure forward compatibility (since no elements will be added to HTML, SVG, or MathML with hyphen-containing local names in the future).
+      >
+      > https://www.w3.org/TR/custom-elements/#valid-custom-element-name
+
+      ---
+
+      ## HTMLに記述
+
+      --
+
+      ```:html
+      <my-header></my-header>
+      <my-social></my-social>
+      <my-modal></my-modal>
+      ```
+
+      ---
+
+      ## Web Componentsで破棄されるもの
+
+      --
+
+      - CSS設計
+      - React, Vue
+
+      ---
+
+      ## 未来のHTML
+
+      --
+
+      ```:html
+      <html>
+        <head>
+          <link rel="import" href="./components/app.html">
+          <link rel="import" href="./components/header.html">
+          <link rel="import" href="./components/main.html">
+          <link rel="import" href="./components/footer.html">
+        </head>
+        <body>
+          <x-app>
+            <x-header>
+              <x-nav type="main">
+                <x-link type="anchor" url="/">TOP</x-link>
+                <x-link type="anchor" url="/contents">Contents</x-link>
+              </x-nav>
+              <x-nav type="sub">
+                <x-link type="twitter"></x-link>
+                <x-link type="facebook"></x-link>
+                <x-link type="line"></x-link>
+              </x-nav>
+            </x-header>
+            <x-main></x-main>
+            <x-footer></x-footer>
+          </x-app>
+        </body>
+      </html>
+      ```
+
+      ---
+      class: center, middle
+
+      # Let's Web Components
+
+      ---
+      class: center, middle
+
+      # END
+
+    </textarea>
+    <script src="js/remark.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        navigation: {
+          scroll: false
+        }
+      });
+    </script>
+  </body>
+</html>
